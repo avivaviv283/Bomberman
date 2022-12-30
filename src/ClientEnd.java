@@ -37,9 +37,9 @@ public class ClientEnd extends JPanel implements Runnable {
 		socket = new Socket("localhost", port);
 
 		inputStream = socket.getInputStream();
-		outputStream = socket.getOutputStream();
-
 		objectInputStream = new ObjectInputStream(inputStream);
+
+		outputStream = socket.getOutputStream();
 		objectOutputStream = new ObjectOutputStream(outputStream);
 
 		Data d = null;
@@ -56,7 +56,7 @@ public class ClientEnd extends JPanel implements Runnable {
 			e.printStackTrace();
 		}
 		this.playerIndex = d.getPlayerIndex();
-//el1
+
 	}
 
 	@Override
@@ -65,26 +65,43 @@ public class ClientEnd extends JPanel implements Runnable {
 		while (true) {
 
 			try {
+				sleep(100);
 				sendData();
 			} catch (IOException e) {
-				
+
 				e.printStackTrace();
 			}
 
-			getData();
-			m.players.get(d.playerIndex).setDirection(d.direction);
+			sleep(100);
+			Data dRecieved = null;
+			dRecieved = getData();
+			if (dRecieved != null && dRecieved.direction != null) {
+				m.players.get(dRecieved.playerIndex).setDirection(dRecieved.direction);
+			}
 		}
+	}
+
+	private void sleep(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	private Data getData() {
 		Data d = null;
 		Object o;
 		try {
+			System.out.println("Trying to read object");
 			o = objectInputStream.readObject();
-			
+			System.out.println("succesfully read object");
 			if (o instanceof Data) {
+
 				d = (Data) o;
-				System.out.println("Object recieved: " + d.direction + " , " + d.playerIndex);
+				System.out.println("Object recieved from player: " + d.playerIndex + ": " + d.direction);
 			} else {
 				if (o instanceof String) {
 					if (o.equals("Add Player")) {
@@ -106,56 +123,10 @@ public class ClientEnd extends JPanel implements Runnable {
 	private void sendData() throws IOException {
 
 		Data d = new Data(playerIndex, m.players.get(playerIndex).direction);
+		Data newd = new Data(d);
 		System.out.println("Object sent: " + d.direction + " , " + d.playerIndex);
-		objectOutputStream.writeObject(d);
-	}
-
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
-
-		// draw all blocks in board
-		for (int i = 0; i < m.boardHeight; i++) {
-			for (int j = 0; j < m.boardWidth; j++) {
-
-				if (Map.board[i][j].isExploded == true && m.e != null) {// in case of an explosion
-					Map.board[i][j].draw(g);
-
-					if (Map.board[i][j].type == Block.blockTypeStone) {// in case the explosion hits stone block
-						Map.board[i][j].type = Block.blockTypeGrass;
-						Map.board[i][j].img = Map.board[i][j].block_Images[Block.blockTypeGrass];
-					}
-					m.e.draw(g);
-
-				} else {
-					m.board[i][j].draw(g);
-				}
-			}
-		}
-
-		// draw Player//eli
-		for (int i = 1; i < m.players.size(); i++) {
-			if (m.players.get(i) != null) {
-				m.players.get(i).draw(g, m.players.get(i).getDirection());
-			}
-		}
-
-		// bomb array drawing
-		int i = 0;
-		while (m.bombArr[i] != null && m.bombArr[i].isAlive() && i < Map.numBombs - 1) {
-			m.bombArr[i].draw(g);
-			i++;
-		}
-		i = 0;
-
-		// draw pause image when game pause activated
-		//VAMOSOOOOSOSO
-		if (Map.pauseFlag == 1) {
-			ImageIcon ii = new ImageIcon("pause_text.png");
-			m.pauseImage = ii.getImage();
-			g.drawImage(m.pauseImage, getWidth() / 2 - ii.getIconWidth() / 2,
-					getHeight() / 2 - ii.getIconHeight() / 2 + 20, null);
-			repaint();
-		}
+		objectOutputStream.writeObject(newd);
+		System.out.println("Object sent successfully");
 	}
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -164,7 +135,6 @@ public class ClientEnd extends JPanel implements Runnable {
 		Object obj;
 		obj = e.objectInputStream.readObject();
 		if (obj instanceof Integer) {
-			// SUSSY WUSSY ^_^ OwO
 			int playerCount = (Integer) obj;
 			System.out.println("recireved player count: " + playerCount);
 			e.m = new Map(e.playerIndex, playerCount);
@@ -174,7 +144,6 @@ public class ClientEnd extends JPanel implements Runnable {
 			f.setResizable(false);
 			f.setVisible(true);
 			f.setFocusable(false);
-			//SUSSY WUSSY UwU
 			e.t.start();
 		}
 	}

@@ -25,47 +25,48 @@ public class Handler extends Thread {
 
 			this.inputStream = this.socket.getInputStream();
 			this.objectinputStream = new ObjectInputStream(inputStream);
-			
-			addClientToArray();
 
+			addClientToArray();
 
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	private void addClientToArray() throws IOException {
-        // start array at index 1 instead of 0
-        if (clients.size() == 0) {
-            clients.add(0, null);
-        }
-        //eli        // adds current handler to handler Array
-        clients.add(this);
+		// start array at index 1 instead of 0
+		if (clients.size() == 0) {
+			clients.add(0, null);
+		}
+		// adds current handler to handler Array
+		clients.add(this);
 
-        // build new data for new client (player index)
-        Data d = new Data(clients.indexOf(this));
+		// build new data for new client (player index)
+		Data d = new Data(clients.indexOf(this));
 
-        // start array at index 1 instead of 0
-        if (data.size() == 0) {
-            data.add(0, null);
-        }
+		// start array at index 1 instead of 0
+		if (data.size() == 0) {
+			data.add(0, null);
+		}
 
-        data.add(d);
+		data.add(d);
 
-        // send player index to client
-        clients.get(data.indexOf(d)).objectOutputStream.writeObject(d);
+		// send player index to client
+		clients.get(data.indexOf(d)).objectOutputStream.writeObject(d);
 
-    }
-	
+	}
+
 	public void run() {
 
 		while (true) {
 
 			for (int i = 1; i < clients.size(); i++) {
 				// Recieves data from one client at a time
+				sleep(100);
 				Data d = getData(i);
 				// send client data to all clients connected
+				sleep(100);
 				sendData(d);
 			}
 		}
@@ -76,10 +77,12 @@ public class Handler extends Thread {
 		Data d = new Data(index);
 
 		try {
+			System.out.println("Trying to read object");
 			Object o = clients.get(index).objectinputStream.readObject();
+			System.out.println("Read object!");
 			if (o instanceof Data) {
 				d = (Data) o;
-				System.out.println("Object is: " + d.direction + " , " + d.playerIndex);
+				System.out.println("Object recieved from player: " + d.playerIndex + "is: " + d.direction);
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -90,7 +93,7 @@ public class Handler extends Thread {
 		} catch (InternalError e) {
 			e.printStackTrace();
 		}
-		
+
 		return d;
 	}
 
@@ -108,11 +111,15 @@ public class Handler extends Thread {
 	}
 
 	static public void sendData(Data d) {
-		// sends data to all clients
+		// sends data to all clients except himself
 		for (int i = 1; i < clients.size(); i++) {
 			try {
-				System.out.println("Object is: " + d.direction + " , " + d.playerIndex);
-				clients.get(i).objectOutputStream.writeObject(d);
+				if (d.playerIndex != i) {
+					Data newd = new Data(d);
+					System.out.println("Sends data to all clients from: " + d.playerIndex + " , " + d.direction);
+					clients.get(i).objectOutputStream.writeObject(newd);
+					System.out.println("Successfully sent!");
+				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -122,7 +129,6 @@ public class Handler extends Thread {
 
 	static public void sendData(String s) {
 		// sends data to all clients
-		// last change 1to 0 and + 1
 		for (int i = 0; i < clients.size(); i++) {
 			try {
 				clients.get(i).objectOutputStream.writeObject(s);
@@ -131,5 +137,14 @@ public class Handler extends Thread {
 				e.printStackTrace();
 			}
 		}
+	}
+	private void sleep(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }

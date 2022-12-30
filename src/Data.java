@@ -1,10 +1,10 @@
 import java.io.Serializable;
 
 public class Data implements Serializable {
-	//eli
+
 	private static final long serialVersionUID = 1L;
-	volatile int direction;
-	int playerIndex;
+	volatile Integer direction;
+	Integer playerIndex;
 
 	public Data(int playerIndex) {
 		this.playerIndex = playerIndex;
@@ -15,6 +15,11 @@ public class Data implements Serializable {
 		this.playerIndex = playerIndex;
 		this.direction = direction;
 
+	}
+
+	public Data(Data d) {
+		this.direction = d.direction;
+		this.playerIndex = d.playerIndex;
 	}
 
 	public int getPlayerIndex() {
