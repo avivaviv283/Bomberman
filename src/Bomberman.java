@@ -107,12 +107,8 @@ public class Bomberman extends Thread {
 			if (!colision()) {// Check for colision with stone / steel walls
 				move(direction); // move bomberman a step in current direction
 			}
-			try {
-				Thread.sleep(250);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+			Constants.sleep(250);
 			panel.repaint();
 		}
 		System.out.println("You Lost!");

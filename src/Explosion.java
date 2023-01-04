@@ -42,12 +42,7 @@ public class Explosion extends Thread {
 
 		explode();
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Constants.sleep(1000);
 		//if Paused game
 				synchronized (this) {
 					if (panel.pauseFlag == 1) {
@@ -68,7 +63,7 @@ public class Explosion extends Thread {
 	}
 	
 	private void explode() {
-		// Exploding horizontaly
+		// Exploding horizontally
 		for (int k = 0; k < explosionSize + panel.players.get(panel.playerIndex).powerupAddition; k++) {
 			if (i + k < panel.boardHeight) {// not out of bounds
 				if (panel.board[this.i + k][this.j].type == Block.blockTypeSteel) {// not colliding with steel block
@@ -89,7 +84,7 @@ public class Explosion extends Thread {
 				}
 			}
 		}
-		// Exploding verticaly
+		// Exploding vertically
 		for (int n = 0; n < explosionSize + panel.players.get(panel.playerIndex).powerupAddition; n++) {
 			if (j + n < panel.boardWidth)// not out of bounds
 				if (panel.board[this.i][this.j + n].type == Block.blockTypeSteel) {// not colliding with steel block

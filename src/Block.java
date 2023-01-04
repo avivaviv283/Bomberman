@@ -5,7 +5,6 @@ import javax.swing.ImageIcon;
 public class Block {
 	int x, y, width, height;
 	Map panel;
-	//static = bad + //eli
 	Image[] block_Images;
 	int type;
 	Image img, saveImage;

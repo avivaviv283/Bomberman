@@ -8,7 +8,7 @@ public class Powerup extends Thread {
 	int i, j;
 	Image powerupImage, backgroundImage, img;
 	int type;
-	int powerupTimer = 15000;
+	int powerupTimer = 15000;//15 Seconds
 	
 	public Powerup(int x, int y, int i, int j, int width, int height, Map panel) {
 		this.x = x;
@@ -31,12 +31,9 @@ public class Powerup extends Thread {
 	public void run() {// When powerup is alive
 
 		panel.players.get(panel.playerIndex).powerupAddition += 1;// add explosion size
-		try {
-			Thread.sleep(powerupTimer);// sleep keeps thread alive, while thread is alive explosion size is increased
-		} catch (InterruptedException e) {
-
-			e.printStackTrace();
-		}
+		
+		Constants.sleep(powerupTimer);
+		
 		System.out.println("Powerup ended");
 		panel.players.get(panel.playerIndex).powerupAddition -= 1;// Decrease explosion size
 		panel.p = null;// delete Powerup

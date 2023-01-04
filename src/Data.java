@@ -6,12 +6,12 @@ public class Data implements Serializable {
 	volatile Integer direction;
 	Integer playerIndex;
 
-	public Data(int playerIndex) {
+	public Data(Integer playerIndex) {
 		this.playerIndex = playerIndex;
 
 	}
 
-	public Data(int playerIndex, int direction) {
+	public Data(Integer playerIndex, Integer direction) {
 		this.playerIndex = playerIndex;
 		this.direction = direction;
 
@@ -22,19 +22,19 @@ public class Data implements Serializable {
 		this.playerIndex = d.playerIndex;
 	}
 
-	public int getPlayerIndex() {
+	public Integer getPlayerIndex() {
 		return playerIndex;
 	}
 
-	public void setPlayerIndex(int playerIndex) {
+	public void setPlayerIndex(Integer playerIndex) {
 		this.playerIndex = playerIndex;
 	}
 
-	public int getDirection() {
+	public Integer getDirection() {
 		return direction;
 	}
 
-	public void setDirection(int direction) {
+	public void setDirection(Integer direction) {
 		this.direction = direction;
 	}
 

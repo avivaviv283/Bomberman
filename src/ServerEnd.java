@@ -1,7 +1,4 @@
-//13-10-2022 update
 
-// A first framework for an "action game" for 2 players
-// communicating data (objects) trough a server
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -18,13 +15,13 @@ import java.net.Socket;
 
 class ServerEnd extends JFrame {
 	JLabel label;
-	static int port = 8000;
+	static int port = 8083;
 	static final int playerLimit = 2;
 	ServerSocket server;
 	Socket socket;
 	int playerCount = 0;
 	
-
+	
 	public ServerEnd() throws IOException {
 		setTitle("Server");
 		getContentPane().setBackground(Color.ORANGE);
@@ -44,17 +41,17 @@ class ServerEnd extends JFrame {
 
 		while (playerCount < playerLimit) {
 			System.out.println("Waiting for accept");
+			// Waiting for clients to connect until the number of clients reached player limit
 			socket = server.accept();
+			// For each client that connects, create a new handler.
 			Handler h = new Handler(socket);
 
 			playerCount++;
 			System.out.println("Accepted Client:" + playerCount);
 		}
 		
-		//start handling ur shit
+		//start handling all clients connected
 		startHandlers();
-		
-		System.out.println("Entering sendingStart");
 		
 		//Sending to call clients the amount of players
 		sendStart();
