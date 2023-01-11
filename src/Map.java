@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Map extends JPanel {
 	static Block[][] board;
 	ArrayList<Bomberman> players = new ArrayList<Bomberman>();
-	static final int boardHeight = 17, boardWidth = 13, blockSize = 40;
+	static final int boardWidth = 17, boardHeight = 13, blockSize = 40;
 	static final int numBombs = 3;
 
 	Bomb[] bombArr;
@@ -25,14 +25,14 @@ public class Map extends JPanel {
 	Powerup p;
 
 	static int pauseFlag;
-	static int playerIndex;
+	static byte playerIndex;
 
 	Image saveImage;
 	Image pauseImage;
 
-	public Map(int playerIndex, int playerCount) {
+	public Map(byte playerIndex, int playerCount) {
 		pauseFlag = 0;
-		board = new Block[boardHeight][boardWidth];
+		board = new Block[boardWidth][boardHeight];
 		this.playerIndex = playerIndex;
 
 		buildBoard();
@@ -52,10 +52,13 @@ public class Map extends JPanel {
 			players.add(0, null);
 		}
 		// Adding amount of players connected (Recieved from server)
-		for (int i = 1; i <= playerCount; i++) {
+		for (int i = 1; i <= playerCount; i++) {			
 			players.add(new Bomberman(this));
 			setStartinglocation(i);
 		}
+		//Set the player which belongs to this client as being controlled by the keyboard 
+		//	(and not by data from the server)
+		players.get(playerIndex).setControlled(true);
 		System.out.println(players);
 	}
 
@@ -102,12 +105,12 @@ public class Map extends JPanel {
 
 	private void buildBlockMatrix() {
 		// creating blocks
-		for (int i = 0; i < boardHeight; i++) {
-			for (int j = 0; j < boardWidth; j++) {
+		for (int i = 0; i < boardWidth; i++) {
+			for (int j = 0; j < boardHeight; j++) {
 				// Create the blocks that build the board
 				board[i][j] = new Block(i * blockSize, j * blockSize + 50, blockSize, blockSize, this);
 
-				if (i == 0 || i == boardHeight - 1 || j == 0 || j == boardWidth - 1) {
+				if (i == 0 || i == boardWidth - 1 || j == 0 || j == boardHeight - 1) {
 					board[i][j].img = board[i][j].block_Images[Block.blockTypeSteel];
 					board[i][j].type = Block.blockTypeSteel;
 					// Background grass blocks
@@ -135,8 +138,8 @@ public class Map extends JPanel {
 		Random r1 = new Random(12345);
 		int counter = 0;
 		while (counter <= numStones) {
-			rndI = 2 + r1.nextInt(boardHeight - 4);
-			rndJ = 2 + r1.nextInt(boardWidth - 4);
+			rndI = 2 + r1.nextInt(boardWidth - 4);
+			rndJ = 2 + r1.nextInt(boardHeight - 4);
 			if (board[rndI][rndJ].type == Block.blockTypeGrass) {
 				board[rndI][rndJ].img = stoneImage;
 				board[rndI][rndJ].type = Block.blockTypeStone;
@@ -148,13 +151,13 @@ public class Map extends JPanel {
 	void generatePowerup() {
 		int rndI, rndJ;
 		Random r1;
-		// Generating power up location
+		// Generating powel1r up location
 		boolean isValid = false;
 		r1 = new Random(1234);
 		while (isValid == false) {
-			rndI = 2 + r1.nextInt(boardWidth - 1);
-			rndJ = 2 + r1.nextInt(boardHeight - 1);
-			if (board[rndI][rndJ].type == Block.blockTypeGrass && (rndI != 1 && rndJ != 1)) {
+			rndI = 2 + r1.nextInt(boardHeight - 1);
+			rndJ = 2 + r1.nextInt(boardWidth - 1);
+			if (board[rndI][rndJ].type == Block.blockTypeGrass) {
 				isValid = true;
 				this.p = new Powerup(rndI * blockSize, rndJ * blockSize + 50, rndI, rndJ, blockSize, blockSize, this);
 				board[rndI][rndJ].img = p.powerupImage;
@@ -169,8 +172,8 @@ public class Map extends JPanel {
 		super.paintComponent(g);
 
 		// draw all blocks in board
-		for (int i = 0; i < boardHeight; i++) {
-			for (int j = 0; j < boardWidth; j++) {
+		for (int i = 0; i < boardWidth; i++) {
+			for (int j = 0; j < boardHeight; j++) {
 
 				if (board[i][j].isExploded == true && e != null) {// in case of an explosion
 					board[i][j].draw(g);
@@ -216,7 +219,7 @@ public class Map extends JPanel {
 
 	public void summonBomb(int pIndex) {
 		// create new bomb when space bar key is pressed and placing it in an array
-		b = new Bomb(players.get(pIndex).x, players.get(pIndex).y, blockSize, blockSize, pIndex, this);
+		b = new Bomb(players.get(pIndex).i * Map.blockSize, players.get(pIndex).j * Map.blockSize + 50, blockSize, blockSize, pIndex, this);
 		int i = 0;
 		while (bombArr[i] != null && bombArr[i].isAlive()) {
 			i++;
@@ -225,7 +228,7 @@ public class Map extends JPanel {
 		bombArr[i].start();
 	}
 
-
+	// maybeli dont
 	public int notifyThreads() {
 		// notifies all threads in game after game resumed
 		for (int i = 0; i < players.size(); i++)
@@ -267,7 +270,7 @@ public class Map extends JPanel {
 			case KeyEvent.VK_UP:
 				players.get(playerIndex).setDirection(Bomberman.up);
 				break;
-			// Spacebar pressed
+			// Spacebar presselid
 			case KeyEvent.VK_SPACE:
 				if (!bombPlaced) {
 					summonBomb(playerIndex);
@@ -275,7 +278,7 @@ public class Map extends JPanel {
 				}
 				break;
 			case KeyEvent.VK_P:
-				// When player presses P he switches flag that makes all threads pause and
+				// Whelin player presselis P he switchelis flag that makelis all threads pause and
 				// resumed depending on flag value
 				pauseFlag = ((pauseFlag == 0) ? 1 : notifyThreads());
 				ClientEnd.reqPause = true;

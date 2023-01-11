@@ -43,7 +43,7 @@ public class Handler extends Thread {
 		clients.add(this);
 
 		// build new data for new client (player index)
-		Data d = new Data(clients.indexOf(this));
+		Data d = new Data((byte)clients.indexOf(this));
 
 		// initialize array at index 1 instead of 0
 		if (data.size() == 0) {
@@ -58,21 +58,19 @@ public class Handler extends Thread {
 	}
 
 	public void run() {
-
 		while (true) {
-
-			for (int i = 1; i < clients.size(); i++) {
+			for (byte i = 1; i < clients.size(); i++) {
 				// Recieves data from one client at a time
-				Constants.sleep(0, 40);
+				Constants.sleep(1);
 				Data d = getData(i);
 				// send client data to all clients connected
-				Constants.sleep(0, 40);
+				Constants.sleep(1);
 				sendData(d);
 			}
 		}
 	}
 
-	public Data getData(int index) {
+	public Data getData(byte index) {
 		// recieves data from a single client
 		Data d = new Data(index);
 		Object o = null;
@@ -85,7 +83,7 @@ public class Handler extends Thread {
 			}
 			if (o instanceof Data) {
 				d = (Data) o;
-				System.out.println("Object recieved from player: " + d.playerIndex + "is: " + d.direction);
+				
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -119,9 +117,9 @@ public class Handler extends Thread {
 				if (d.playerIndex != i) {
 
 					if (d != null && d.direction != null) {
-						System.out.println("Sends data to all clients from: " + d.playerIndex + " , " + d.direction);
+						
 						clients.get(i).objectOutputStream.writeObject(d);
-						System.out.println("Successfully sent!");
+						
 					}
 				}
 			} catch (IOException e) {

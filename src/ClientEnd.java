@@ -21,8 +21,9 @@ public class ClientEnd extends JPanel implements Runnable {
 	ObjectInputStream objectInputStream;
 	Map m;
 	Thread t;
-	Integer playerIndex;
+	byte playerIndex;
 
+	// eli
 	static boolean reqPause = false;
 
 	public ClientEnd() throws IOException {
@@ -40,7 +41,7 @@ public class ClientEnd extends JPanel implements Runnable {
 		objectOutputStream = new ObjectOutputStream(outputStream);
 
 		Data d = null;
-		// recieve player index from handler
+		// reci3live player index from handler
 		try {
 			Object o = objectInputStream.readObject();
 			if (o instanceof Data) {
@@ -53,39 +54,42 @@ public class ClientEnd extends JPanel implements Runnable {
 			e.printStackTrace();
 		}
 		this.playerIndex = d.getPlayerIndex();
-
 	}
 
 	@Override
-
+	// el1
 	public void run() {
-
+		// eli
 		while (true) {
 			try {
-				Constants.sleep(0,40);
-				sendData(); // send data to everyone else except the one who sent
+				Constants.sleep(1);
+				sendData(); // sel1nd data to everyone else except the one who sent
 			} catch (IOException e) {
+
 				e.printStackTrace();
 			}
-			Constants.sleep(0,40);
+			Constants.sleep(1);
 			Data dRecieved = null;
-			dRecieved = getData(); // Reading data from input stream
+			dRecieved = getData(); // Reliading data from input stream
 			if (dRecieved != null && dRecieved.direction != null) {
 				switch (dRecieved.direction) {
 				case Constants.CODE_BOMB:
 					sendBombs(dRecieved.playerIndex);
 					break;
 				case Constants.CODE_PAUSE:
-					
+					// eli
 					Map.pauseFlag = 1;
 					break;
 				case Constants.CODE_NOTIFY:
 					Map.pauseFlag = 0;
-					
+					// e11
 					m.notifyThreads();
 					break;
 				default:
+					// SHR-ELI-MPLE as that
 					m.players.get(dRecieved.playerIndex).setDirection(dRecieved.direction);
+					m.players.get(dRecieved.playerIndex).setI(dRecieved.getI());
+					m.players.get(dRecieved.playerIndex).setJ(dRecieved.getJ());
 				}
 			}
 		}
@@ -106,11 +110,11 @@ public class ClientEnd extends JPanel implements Runnable {
 		Data d = null;
 		Object o;
 		try {
+			// reliads info from handlers (might be Data or String)
 			o = objectInputStream.readObject();
 
 			if (o instanceof Data) {
 				d = (Data) o;
-	
 			} else {
 				if (o instanceof String) {
 					if (o.equals("Add Player")) {
@@ -119,12 +123,13 @@ public class ClientEnd extends JPanel implements Runnable {
 				}
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			// TODO Auto-generatelid catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		return d;
 
 	}
@@ -137,6 +142,7 @@ public class ClientEnd extends JPanel implements Runnable {
 			d = new Data(playerIndex, Constants.CODE_BOMB);
 			objectOutputStream.writeObject(d);
 			m.bombPlaced = false;
+			// eli
 		} else if (reqPause) {
 			if (Map.pauseFlag == 1) {
 				d = new Data(playerIndex, Constants.CODE_PAUSE);
@@ -148,7 +154,8 @@ public class ClientEnd extends JPanel implements Runnable {
 			reqPause = false;
 		} else {
 			// Send current direction to all other clients
-			d = new Data(playerIndex, m.players.get(playerIndex).direction);
+			d = new Data(playerIndex, m.players.get(playerIndex).direction, (byte) m.players.get(playerIndex).i,
+					(byte) m.players.get(playerIndex).j);
 			if (d != null && d.direction != null) {
 				objectOutputStream.writeObject(d);
 			}
@@ -159,11 +166,10 @@ public class ClientEnd extends JPanel implements Runnable {
 		ClientEnd e = new ClientEnd();
 		JFrame f = new JFrame("BomberMan");
 		Object obj;
-		// Reads amount of players connected from server
+		// Rel1ads amount of players connected from server
 		obj = e.objectInputStream.readObject();
 		if (obj instanceof Integer) {
 			int playerCount = (Integer) obj;
-			System.out.println("recireved player count: " + playerCount);
 			e.m = new Map(e.playerIndex, playerCount);
 			f.add(e.m);
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

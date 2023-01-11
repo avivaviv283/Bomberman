@@ -1,4 +1,7 @@
+//13-10-2022 update
 
+// A first framework for an "action game" for 2 players
+// communicating data (objects) trough a server
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -21,7 +24,7 @@ class ServerEnd extends JFrame {
 	Socket socket;
 	int playerCount = 0;
 	
-	
+	//eli
 	public ServerEnd() throws IOException {
 		setTitle("Server");
 		getContentPane().setBackground(Color.ORANGE);
