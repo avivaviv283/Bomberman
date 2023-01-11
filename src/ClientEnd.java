@@ -21,7 +21,7 @@ public class ClientEnd extends JPanel implements Runnable {
 	ObjectInputStream objectInputStream;
 	Map m;
 	Thread t;
-	byte playerIndex;
+	Integer playerIndex;
 
 	static boolean reqPause = false;
 
@@ -53,20 +53,21 @@ public class ClientEnd extends JPanel implements Runnable {
 			e.printStackTrace();
 		}
 		this.playerIndex = d.getPlayerIndex();
+
 	}
 
 	@Override
-	
-	public void run() {
-		while (socket.isConnected()) {
-			try {
-				Constants.sleep(1);
-				sendData(); // sel1nd data to everyone else except the one who sent
-			} catch (IOException e) {
 
+	public void run() {
+
+		while (true) {
+			try {
+				Constants.sleep(0,40);
+				sendData(); // send data to everyone else except the one who sent
+			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			Constants.sleep(1);
+			Constants.sleep(0,40);
 			Data dRecieved = null;
 			dRecieved = getData(); // Reading data from input stream
 			if (dRecieved != null && dRecieved.direction != null) {
@@ -75,16 +76,16 @@ public class ClientEnd extends JPanel implements Runnable {
 					sendBombs(dRecieved.playerIndex);
 					break;
 				case Constants.CODE_PAUSE:
+					
 					Map.pauseFlag = 1;
 					break;
 				case Constants.CODE_NOTIFY:
 					Map.pauseFlag = 0;
+					
 					m.notifyThreads();
 					break;
 				default:
 					m.players.get(dRecieved.playerIndex).setDirection(dRecieved.direction);
-					m.players.get(dRecieved.playerIndex).setI(dRecieved.getI());
-					m.players.get(dRecieved.playerIndex).setJ(dRecieved.getJ());
 				}
 			}
 		}
@@ -105,11 +106,11 @@ public class ClientEnd extends JPanel implements Runnable {
 		Data d = null;
 		Object o;
 		try {
-			// reliads info from handlers (might be Data or String)
 			o = objectInputStream.readObject();
 
 			if (o instanceof Data) {
 				d = (Data) o;
+	
 			} else {
 				if (o instanceof String) {
 					if (o.equals("Add Player")) {
@@ -118,13 +119,12 @@ public class ClientEnd extends JPanel implements Runnable {
 				}
 			}
 		} catch (ClassNotFoundException e) {
-			
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return d;
 
 	}
@@ -148,8 +148,7 @@ public class ClientEnd extends JPanel implements Runnable {
 			reqPause = false;
 		} else {
 			// Send current direction to all other clients
-			d = new Data(playerIndex, m.players.get(playerIndex).direction, (byte) m.players.get(playerIndex).i,
-					(byte) m.players.get(playerIndex).j);
+			d = new Data(playerIndex, m.players.get(playerIndex).direction);
 			if (d != null && d.direction != null) {
 				objectOutputStream.writeObject(d);
 			}
@@ -164,6 +163,7 @@ public class ClientEnd extends JPanel implements Runnable {
 		obj = e.objectInputStream.readObject();
 		if (obj instanceof Integer) {
 			int playerCount = (Integer) obj;
+			System.out.println("recireved player count: " + playerCount);
 			e.m = new Map(e.playerIndex, playerCount);
 			f.add(e.m);
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
