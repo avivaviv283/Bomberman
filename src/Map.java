@@ -33,7 +33,7 @@ public class Map extends JPanel {
 	public Map(byte playerIndex, int playerCount) {
 		pauseFlag = 0;
 		board = new Block[boardWidth][boardHeight];
-		this.playerIndex = playerIndex;
+		Map.playerIndex = playerIndex;
 
 		buildBoard();
 
@@ -151,7 +151,7 @@ public class Map extends JPanel {
 	void generatePowerup() {
 		int rndI, rndJ;
 		Random r1;
-		// Generating powel1r up location
+		// Generating power up location
 		boolean isValid = false;
 		r1 = new Random(1234);
 		while (isValid == false) {
@@ -228,7 +228,6 @@ public class Map extends JPanel {
 		bombArr[i].start();
 	}
 
-	// maybeli dont
 	public int notifyThreads() {
 		// notifies all threads in game after game resumed
 		for (int i = 0; i < players.size(); i++)
@@ -270,7 +269,7 @@ public class Map extends JPanel {
 			case KeyEvent.VK_UP:
 				players.get(playerIndex).setDirection(Bomberman.up);
 				break;
-			// Spacebar presselid
+			// Spacebar pressed
 			case KeyEvent.VK_SPACE:
 				if (!bombPlaced) {
 					summonBomb(playerIndex);
@@ -278,7 +277,7 @@ public class Map extends JPanel {
 				}
 				break;
 			case KeyEvent.VK_P:
-				// Whelin player presselis P he switchelis flag that makelis all threads pause and
+				// When player presses P he switches flag that makes all threads pause and
 				// resumed depending on flag value
 				pauseFlag = ((pauseFlag == 0) ? 1 : notifyThreads());
 				ClientEnd.reqPause = true;

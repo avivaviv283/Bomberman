@@ -5,8 +5,6 @@ public class Data implements Serializable {
 	private static final long serialVersionUID = 1L;
 	volatile Byte direction;
 	Byte playerIndex;
-	
-	//e1i
 	Byte I = 0;
 	Byte J = 0;
 

@@ -58,19 +58,15 @@ public class Bomberman extends Thread {
 
 		switch (direction) {// increase / decrease values of player location
 		case down:
-			// y += (Map.blockSize);
 			j++;
 			break;
 		case left:
-			// x -= (Map.blockSize);
 			i--;
 			break;
 		case right:
-			// x += (Map.blockSize);
 			i++;
 			break;
 		case up:
-			// y -= (Map.blockSize);
 			j--;
 			break;
 		}
@@ -86,16 +82,13 @@ public class Bomberman extends Thread {
 	}
 
 	public void run() {
-		// x = Map.blockSize * i;
-		// y = Map.blockSize * j + 50;
 		while (true) {
-			// if Pauselilid game
+			// if Paused game
 			synchronized (this) {
 				if (panel.pauseFlag == 1) {
 					try {
 						wait();
 					} catch (InterruptedException e) {
-						// dont
 					}
 				}
 			}

@@ -22,8 +22,6 @@ public class ClientEnd extends JPanel implements Runnable {
 	Map m;
 	Thread t;
 	byte playerIndex;
-
-	// eli
 	static boolean reqPause = false;
 
 	public ClientEnd() throws IOException {
@@ -41,7 +39,7 @@ public class ClientEnd extends JPanel implements Runnable {
 		objectOutputStream = new ObjectOutputStream(outputStream);
 
 		Data d = null;
-		// reci3live player index from handler
+		// recieve player index from handler
 		try {
 			Object o = objectInputStream.readObject();
 			if (o instanceof Data) {
@@ -57,9 +55,7 @@ public class ClientEnd extends JPanel implements Runnable {
 	}
 
 	@Override
-	// el1
 	public void run() {
-		// eli
 		while (true) {
 			try {
 				Constants.sleep(1);
@@ -77,16 +73,13 @@ public class ClientEnd extends JPanel implements Runnable {
 					sendBombs(dRecieved.playerIndex);
 					break;
 				case Constants.CODE_PAUSE:
-					// eli
 					Map.pauseFlag = 1;
 					break;
 				case Constants.CODE_NOTIFY:
 					Map.pauseFlag = 0;
-					// e11
 					m.notifyThreads();
 					break;
 				default:
-					// SHR-ELI-MPLE as that
 					m.players.get(dRecieved.playerIndex).setDirection(dRecieved.direction);
 					m.players.get(dRecieved.playerIndex).setI(dRecieved.getI());
 					m.players.get(dRecieved.playerIndex).setJ(dRecieved.getJ());
@@ -110,7 +103,7 @@ public class ClientEnd extends JPanel implements Runnable {
 		Data d = null;
 		Object o;
 		try {
-			// reliads info from handlers (might be Data or String)
+			// reads info from handlers (might be Data or String)
 			o = objectInputStream.readObject();
 
 			if (o instanceof Data) {
@@ -142,7 +135,6 @@ public class ClientEnd extends JPanel implements Runnable {
 			d = new Data(playerIndex, Constants.CODE_BOMB);
 			objectOutputStream.writeObject(d);
 			m.bombPlaced = false;
-			// eli
 		} else if (reqPause) {
 			if (Map.pauseFlag == 1) {
 				d = new Data(playerIndex, Constants.CODE_PAUSE);
@@ -166,7 +158,7 @@ public class ClientEnd extends JPanel implements Runnable {
 		ClientEnd e = new ClientEnd();
 		JFrame f = new JFrame("BomberMan");
 		Object obj;
-		// Rel1ads amount of players connected from server
+		// Reads amount of players connected from server
 		obj = e.objectInputStream.readObject();
 		if (obj instanceof Integer) {
 			int playerCount = (Integer) obj;

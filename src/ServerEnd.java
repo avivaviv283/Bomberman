@@ -24,7 +24,6 @@ class ServerEnd extends JFrame {
 	Socket socket;
 	int playerCount = 0;
 	
-	//eli
 	public ServerEnd() throws IOException {
 		setTitle("Server");
 		getContentPane().setBackground(Color.ORANGE);
