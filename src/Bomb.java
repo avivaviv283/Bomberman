@@ -14,7 +14,7 @@ public class Bomb extends Thread {
 	int i, j;
 	
 	
-	public Bomb(int x, int y, int width, int height, Map panel) {
+	public Bomb(int x, int y, int width, int height, int pIndex, Map panel) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
@@ -26,8 +26,8 @@ public class Bomb extends Thread {
 		this.bombCharging = ii.getImage();
 		ii = new ImageIcon("explosion.png");
 		this.explosion = ii.getImage();
-		i = panel.players.get(panel.playerIndex).i;
-		j = panel.players.get(panel.playerIndex).j;
+		i = panel.players.get(pIndex).i;
+		j = panel.players.get(pIndex).j;
 	
 	}
 
@@ -55,12 +55,7 @@ public class Bomb extends Thread {
 						} catch (InterruptedException e) {}
 					}
 				}
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+				Constants.sleep(1000);
 		//if Paused game
 				synchronized (this) {
 					if (panel.pauseFlag == 1) {
@@ -71,12 +66,7 @@ public class Bomb extends Thread {
 				}
 		img = bombCharging;
 		panel.repaint();
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		Constants.sleep(500);
 		//if Paused game
 				synchronized (this) {
 					if (panel.pauseFlag == 1) {

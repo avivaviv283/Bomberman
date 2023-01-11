@@ -5,13 +5,12 @@ import javax.swing.ImageIcon;
 public class Block {
 	int x, y, width, height;
 	Map panel;
-	//static = bad + //eli
 	Image[] block_Images;
 	int type;
 	Image img, saveImage;
 	boolean isExploded;
 
-	public static final int blockTypeSteel = 0, blockTypeGrass = 1, blockTypeStone = 2, blockTypeExplosion = 3,
+	public static final byte blockTypeSteel = 0, blockTypeGrass = 1, blockTypeStone = 2, blockTypeExplosion = 3,
 			blockTypePowerup = 4;
 	
 	public Block(int x, int y, int width, int height, Map p) {

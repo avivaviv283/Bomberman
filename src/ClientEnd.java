@@ -1,8 +1,4 @@
-// 29-7-2022
-// 11-8-2022 update 
 
-// A first framework for an "action game" for 2 players
-// communicating data (objects) trough a server
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -25,12 +21,13 @@ public class ClientEnd extends JPanel implements Runnable {
 	ObjectInputStream objectInputStream;
 	Map m;
 	Thread t;
-	int playerIndex;
+	byte playerIndex;
+
+	static boolean reqPause = false;
 
 	public ClientEnd() throws IOException {
 		t = new Thread(this);
 		connectToServer(ServerEnd.port);
-
 	}
 
 	public void connectToServer(int port) throws IOException {
@@ -56,52 +53,63 @@ public class ClientEnd extends JPanel implements Runnable {
 			e.printStackTrace();
 		}
 		this.playerIndex = d.getPlayerIndex();
-
 	}
 
 	@Override
+	
 	public void run() {
-		Data d = new Data(playerIndex);
-		while (true) {
-
+		while (socket.isConnected()) {
 			try {
-				sleep(100);
-				sendData();
+				Constants.sleep(1);
+				sendData(); // sel1nd data to everyone else except the one who sent
 			} catch (IOException e) {
 
 				e.printStackTrace();
 			}
-
-			sleep(100);
+			Constants.sleep(1);
 			Data dRecieved = null;
-			dRecieved = getData();
+			dRecieved = getData(); // Reading data from input stream
 			if (dRecieved != null && dRecieved.direction != null) {
-				m.players.get(dRecieved.playerIndex).setDirection(dRecieved.direction);
+				switch (dRecieved.direction) {
+				case Constants.CODE_BOMB:
+					sendBombs(dRecieved.playerIndex);
+					break;
+				case Constants.CODE_PAUSE:
+					Map.pauseFlag = 1;
+					break;
+				case Constants.CODE_NOTIFY:
+					Map.pauseFlag = 0;
+					m.notifyThreads();
+					break;
+				default:
+					m.players.get(dRecieved.playerIndex).setDirection(dRecieved.direction);
+					m.players.get(dRecieved.playerIndex).setI(dRecieved.getI());
+					m.players.get(dRecieved.playerIndex).setJ(dRecieved.getJ());
+				}
 			}
 		}
 	}
 
-	private void sleep(int time) {
-		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+	// Sends to all clients to summon a bomb in the current player location of
+	// playerIndex
+	// Sends everyone but himself.
+	private void sendBombs(int pIndex) {
+		for (int i = 1; i < m.players.size(); i++) {
+			if (i != pIndex) {
+				m.players.get(i).panel.summonBomb(pIndex);
+			}
 		}
-
 	}
 
 	private Data getData() {
 		Data d = null;
 		Object o;
 		try {
-			System.out.println("Trying to read object");
+			// reliads info from handlers (might be Data or String)
 			o = objectInputStream.readObject();
-			System.out.println("succesfully read object");
-			if (o instanceof Data) {
 
+			if (o instanceof Data) {
 				d = (Data) o;
-				System.out.println("Object recieved from player: " + d.playerIndex + ": " + d.direction);
 			} else {
 				if (o instanceof String) {
 					if (o.equals("Add Player")) {
@@ -110,33 +118,52 @@ public class ClientEnd extends JPanel implements Runnable {
 				}
 			}
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
 		return d;
 
 	}
 
 	private void sendData() throws IOException {
-
-		Data d = new Data(playerIndex, m.players.get(playerIndex).direction);
-		Data newd = new Data(d);
-		System.out.println("Object sent: " + d.direction + " , " + d.playerIndex);
-		objectOutputStream.writeObject(newd);
-		System.out.println("Object sent successfully");
+		Data d = null;
+		if (m.bombPlaced) {
+			// -1 direction tells the other client to summon a bomb on the player with index
+			// playerIndex
+			d = new Data(playerIndex, Constants.CODE_BOMB);
+			objectOutputStream.writeObject(d);
+			m.bombPlaced = false;
+		} else if (reqPause) {
+			if (Map.pauseFlag == 1) {
+				d = new Data(playerIndex, Constants.CODE_PAUSE);
+				objectOutputStream.writeObject(d);
+			} else {
+				d = new Data(playerIndex, Constants.CODE_NOTIFY);
+				objectOutputStream.writeObject(d);
+			}
+			reqPause = false;
+		} else {
+			// Send current direction to all other clients
+			d = new Data(playerIndex, m.players.get(playerIndex).direction, (byte) m.players.get(playerIndex).i,
+					(byte) m.players.get(playerIndex).j);
+			if (d != null && d.direction != null) {
+				objectOutputStream.writeObject(d);
+			}
+		}
 	}
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		ClientEnd e = new ClientEnd();
 		JFrame f = new JFrame("BomberMan");
 		Object obj;
+		// Reads amount of players connected from server
 		obj = e.objectInputStream.readObject();
 		if (obj instanceof Integer) {
 			int playerCount = (Integer) obj;
-			System.out.println("recireved player count: " + playerCount);
 			e.m = new Map(e.playerIndex, playerCount);
 			f.add(e.m);
 			f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -35,7 +35,7 @@ public class Handler extends Thread {
 	}
 
 	private void addClientToArray() throws IOException {
-		// start array at index 1 instead of 0
+		// initialize array at index 1 instead of 0
 		if (clients.size() == 0) {
 			clients.add(0, null);
 		}
@@ -43,9 +43,9 @@ public class Handler extends Thread {
 		clients.add(this);
 
 		// build new data for new client (player index)
-		Data d = new Data(clients.indexOf(this));
+		Data d = new Data((byte)clients.indexOf(this));
 
-		// start array at index 1 instead of 0
+		// initialize array at index 1 instead of 0
 		if (data.size() == 0) {
 			data.add(0, null);
 		}
@@ -58,31 +58,32 @@ public class Handler extends Thread {
 	}
 
 	public void run() {
-
-		while (true) {
-
-			for (int i = 1; i < clients.size(); i++) {
+		while (socket.isConnected()) {
+			for (byte i = 1; i < clients.size(); i++) {
 				// Recieves data from one client at a time
-				sleep(100);
+				Constants.sleep(1);
 				Data d = getData(i);
 				// send client data to all clients connected
-				sleep(100);
+				Constants.sleep(1);
 				sendData(d);
 			}
 		}
 	}
 
-	public Data getData(int index) {
+	public Data getData(byte index) {
 		// recieves data from a single client
 		Data d = new Data(index);
-
+		Object o = null;
 		try {
-			System.out.println("Trying to read object");
-			Object o = clients.get(index).objectinputStream.readObject();
-			System.out.println("Read object!");
+
+			// Synchronized read means only one thread can access readObject at a time
+			// fixes multiple readings at the same time causing a stream corruption
+			synchronized (clients.get(index)) {
+				o = clients.get(index).objectinputStream.readObject();
+			}
 			if (o instanceof Data) {
 				d = (Data) o;
-				System.out.println("Object recieved from player: " + d.playerIndex + "is: " + d.direction);
+				
 			}
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
@@ -104,7 +105,6 @@ public class Handler extends Thread {
 				// send numerical data to each client (playerCounter, usually)
 				clients.get(i).objectOutputStream.writeObject(num);
 			} catch (IOException e) {
-				// TODO WHATEVER
 				e.printStackTrace();
 			}
 		}
@@ -115,10 +115,12 @@ public class Handler extends Thread {
 		for (int i = 1; i < clients.size(); i++) {
 			try {
 				if (d.playerIndex != i) {
-					Data newd = new Data(d);
-					System.out.println("Sends data to all clients from: " + d.playerIndex + " , " + d.direction);
-					clients.get(i).objectOutputStream.writeObject(newd);
-					System.out.println("Successfully sent!");
+
+					if (d != null && d.direction != null) {
+						
+						clients.get(i).objectOutputStream.writeObject(d);
+						
+					}
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
@@ -138,13 +140,5 @@ public class Handler extends Thread {
 			}
 		}
 	}
-	private void sleep(int time) {
-		try {
-			Thread.sleep(time);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-	}
+
 }

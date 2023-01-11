@@ -6,16 +6,16 @@ import java.util.*;
 import javax.swing.ImageIcon;
 
 public class Bomberman extends Thread {
-	static final int down = 0, left = 1, right = 2, up = 3;
+	static final byte down = 0, left = 1, right = 2, up = 3;
 	int x = 40, y = 90, width = 40, height = 40;
-	volatile int direction;
+	volatile byte direction;
 	int i, j;
 	Map panel;
 	boolean isAlive;
 	Image bomberDown, bomberLeft, bomberRight, bomberUp;
 	int powerupAddition = 0;
+	private boolean controlled = false;
 
-	
 	public Bomberman(Map panel) {
 		this.isAlive = true;
 		this.panel = panel;
@@ -31,7 +31,6 @@ public class Bomberman extends Thread {
 		bomberUp = ii.getImage();
 
 	}
-
 
 	public void draw(Graphics g, int direction) {// drawing bomberman picture
 		switch (direction) {
@@ -59,38 +58,31 @@ public class Bomberman extends Thread {
 
 		switch (direction) {// increase / decrease values of player location
 		case down:
-			y += (Map.blockSize);
 			j++;
 			break;
 		case left:
-			x -= (Map.blockSize);
 			i--;
 			break;
 		case right:
-			x += (Map.blockSize);
 			i++;
 			break;
 		case up:
-			y -= (Map.blockSize);
 			j--;
 			break;
-
 		}
+
 	}
 
 	public int getDirection() {
 		return direction;
 	}
 
-	public void setDirection(int direction) {
+	public void setDirection(byte direction) {
 		this.direction = direction;
 	}
 
 	public void run() {
-		x = Map.blockSize * i;
-		y = Map.blockSize * j + 50;
 		while (true) {
-
 			// if Paused game
 			synchronized (this) {
 				if (panel.pauseFlag == 1) {
@@ -100,23 +92,47 @@ public class Bomberman extends Thread {
 					}
 				}
 			}
+
 			if (Map.board[this.i][this.j].isExploded == true) {// if bomberman steps in an explosion
 				break;
 			}
 
-			if (!colision()) {// Check for colision with stone / steel walls
+			if (!colision() && controlled) {// Check for colision with stone / steel walls
 				move(direction); // move bomberman a step in current direction
 			}
-			try {
-				Thread.sleep(250);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			
+			x = Map.blockSize * i;
+			y = Map.blockSize * j + 50;
+			
+			Constants.sleep(250);
 			panel.repaint();
 		}
 		System.out.println("You Lost!");
 		System.exit(0);
+	}
+
+	public boolean isControlled() {
+		return controlled;
+	}
+
+	public void setControlled(boolean controlled) {
+		this.controlled = controlled;
+	}
+
+	public int getI() {
+		return i;
+	}
+
+	public void setI(int i) {
+		this.i = i;
+	}
+
+	public int getJ() {
+		return j;
+	}
+
+	public void setJ(int j) {
+		this.j = j;
 	}
 
 	private boolean colision() { // check for colision with solid blocks (stone / steel)

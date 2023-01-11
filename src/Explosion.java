@@ -42,20 +42,16 @@ public class Explosion extends Thread {
 
 		explode();
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		//if Paused game
-				synchronized (this) {
-					if (panel.pauseFlag == 1) {
-						try {
-							wait();
-						} catch (InterruptedException e) {}
-					}
+		Constants.sleep(1000);
+		// if Paused game
+		synchronized (this) {
+			if (panel.pauseFlag == 1) {
+				try {
+					wait();
+				} catch (InterruptedException e) {
 				}
+			}
+		}
 		clearNeighbours();
 		panel.e = null;
 	}
@@ -66,45 +62,46 @@ public class Explosion extends Thread {
 		}
 
 	}
-	
+
 	private void explode() {
-		// Exploding horizontaly
-		for (int k = 0; k < explosionSize + panel.players.get(panel.playerIndex).powerupAddition; k++) {
-			if (i + k < panel.boardHeight) {// not out of bounds
-				if (panel.board[this.i + k][this.j].type == Block.blockTypeSteel) {// not colliding with steel block
-					break;
-				} else {
-					panel.board[this.i + k][this.j].isExploded = true;
-					this.neighbours.add(panel.board[this.i + k][this.j]);
-
+		boolean right, left, up, down;
+		right = true;
+		left = true;
+		up = true;
+		down = true;
+		// Elixploding horizontally
+		for (int n = 0; n < explosionSize + panel.players.get(Map.playerIndex).powerupAddition; n++) {
+			if (i + n < Map.boardWidth)// not out of bounds
+				if (Map.board[this.i + n][this.j].type == Block.blockTypeSteel) {// not colliding with steel block
+					right = false;
+				} else if (right) {
+					Map.board[this.i + n][this.j].isExploded = true;
+					this.neighbours.add(Map.board[this.i + n][this.j]);
 				}
-				if (i - k > 0) { // not out of bounds
-					if (panel.board[this.i - k][this.j].type == Block.blockTypeSteel) {// not colliding with steel block
-						break;
-					} else {
-						panel.board[this.i - k][this.j].isExploded = true;
-						this.neighbours.add(Map.board[this.i - k][this.j]);
-
-					}
+			if (i - n > 0) {// not out of bounds
+				if (Map.board[this.i - n][this.j].type == Block.blockTypeSteel) {// not colliding with steel block
+					left = false;
+				} else if (left) {
+					Map.board[this.i - n][this.j].isExploded = true;
+					this.neighbours.add(Map.board[this.i - n][this.j]);
 				}
 			}
 		}
-		// Exploding verticaly
-		for (int n = 0; n < explosionSize + panel.players.get(panel.playerIndex).powerupAddition; n++) {
-			if (j + n < panel.boardWidth)// not out of bounds
-				if (panel.board[this.i][this.j + n].type == Block.blockTypeSteel) {// not colliding with steel block
-					break;
-				} else {
-					panel.board[this.i][this.j + n].isExploded = true;
-					this.neighbours.add(panel.board[this.i][this.j + n]);
+		// Exploding vertically
+		for (int n = 0; n < explosionSize + panel.players.get(Map.playerIndex).powerupAddition; n++) {
+			if (j + n < Map.boardHeight)// not out of bounds
+				if (Map.board[this.i][this.j + n].type == Block.blockTypeSteel) {// not colliding with steel block
+					down = false;
+				} else if (down) {
+					Map.board[this.i][this.j + n].isExploded = true;
+					this.neighbours.add(Map.board[this.i][this.j + n]);
 				}
 			if (j - n > 0) {// not out of bounds
-				if (panel.board[this.i][this.j - n].type == Block.blockTypeSteel) {// not colliding with steel block
-
-					break;
-				} else {
-					panel.board[this.i][this.j - n].isExploded = true;
-					this.neighbours.add(panel.board[this.i][this.j - n]);
+				if (Map.board[this.i][this.j - n].type == Block.blockTypeSteel) {// not colliding with steel block
+					up = false;
+				} else if (up) {
+					Map.board[this.i][this.j - n].isExploded = true;
+					this.neighbours.add(Map.board[this.i][this.j - n]);
 				}
 			}
 		}
